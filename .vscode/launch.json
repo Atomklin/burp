@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "command": "pnpm start",
+            "name": "Debug Multi-Bot",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "command": "pnpm test",
+            "name": "Debug Multi-Bot Test",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+    ]
+}

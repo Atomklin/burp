@@ -1,0 +1,27 @@
+{
+  "name": "multi-bot",
+  "version": "0.0.0",
+  "main": "build/main.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "tsc && node .",
+    "test": "tsc && node --test \"**/*.test.js\""
+  },
+  "type": "module",
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@stylistic/eslint-plugin": "^5.2.3",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.3.0",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "discord.js": "^14.22.1",
+    "dotenv": "^17.2.1",
+    "pino": "^9.9.0"
+  }
+}
