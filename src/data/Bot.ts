@@ -1,6 +1,7 @@
 import { Client, Events, GatewayIntentBits, RESTEvents } from "discord.js";
 import assert from "node:assert";
 import { once } from "node:events";
+import { join } from "node:path";
 import pino from "pino";
 
 import type { BaseLogger } from "pino";
@@ -8,6 +9,7 @@ import type { BotData } from "./BotData.ts";
 
 export class Bot extends Client<true> {
     readonly logger: BaseLogger;
+    appDir: string;
 
     #data?: BotData;
 
@@ -23,6 +25,7 @@ export class Bot extends Client<true> {
             ],
         });
 
+        this.appDir = join(import.meta.dirname, "../../.bot");
         this.logger = logger ?? pino({
             serializers: {
                 error: pino.stdSerializers.errWithCause,

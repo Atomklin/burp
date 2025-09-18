@@ -7,11 +7,11 @@ import { describe, it } from "node:test";
 import { walkDirectory } from "../fs-utils.ts";
 
 describe('"walkDirectory()" works', () => {
-    it('should throw when "dirPath" or "maxDepth" is invalid', (ctx) => {
+    it('should throw when "dirPath" or "maxDepth" is invalid', async (ctx) => {
         // Arrange
         const InvalidParameters: [string, number][] = [
-            ["",                         0],
-            ["../tests",                 0],
+            ["",                         1],
+            ["../tests",                 1],
             [join(import.meta.filename), 0],
             [join(import.meta.dirname),  -1],
             [join(import.meta.dirname),  1.5],
@@ -19,7 +19,7 @@ describe('"walkDirectory()" works', () => {
 
         for (const [dirPath, maxDepth] of InvalidParameters) {
             // Act & Assert
-            ctx.assert.rejects(() => walkDirectory(dirPath, maxDepth).next());
+            await ctx.assert.rejects(() => walkDirectory(dirPath, maxDepth).next());
         }
     });
 
@@ -40,13 +40,13 @@ describe('"walkDirectory()" works', () => {
         });
 
         try {
-            const Depth0 = ["File1", "File2"];
-            const Depth1 = Depth0.concat(["Dir2/SubFile1", "Dir2/SubFile3", "Dir1/SubFile1", "Dir1/SubFile2"]);
-            const Depth2 = Depth1.concat(["Dir1/Deep/DeeperSubFile"]);
+            const Depth1 = ["File1", "File2"];
+            const Depth2 = Depth1.concat(["Dir2/SubFile1", "Dir2/SubFile3", "Dir1/SubFile1", "Dir1/SubFile2"]);
+            const Depth3 = Depth2.concat(["Dir1/Deep/DeeperSubFile"]);
 
-            for (const [maxDepth, expected] of [Depth0, Depth1, Depth2, Depth2].entries()) {
+            for (const [i, expected] of [Depth1, Depth2, Depth3, Depth3].entries()) {
                 // Act
-                const results = await Array.fromAsync(walkDirectory(treeDir, maxDepth));
+                const results = await Array.fromAsync(walkDirectory(treeDir, i + 1));
                 // Assert
                 ctx.assert.deepEqual(results, expected.map(path => join(treeDir, path)));
             }

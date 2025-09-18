@@ -28,7 +28,7 @@ async function importHandlersDir<T>(
     logger: BaseLogger
 ) {
     const dirPath = join(import.meta.dirname, dir);
-    const maxDepth = dir === "client-events" ? 0 : undefined;
+    const maxDepth = dir === "client-events" ? 1 : undefined;
     const modules = importDirectory<{ default?: T }>(dirPath, maxDepth);
 
     let totalImported = 0;

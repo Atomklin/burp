@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
  * This is an async generator that traverses a given directory (depth-first),
  * discovering files and yielding their absolute paths one by one.
  * - Directories are explored up to the specified `maxDepth`. Which must be a positive integer
- *   (0 means no traversal, only the root directory).
+ *   (1 means no traversal, only the root directory).
  * - Only file paths are yielded; directories are not.
  * - Traversal is depth-first but order of files within a directory is not guaranteed.
  *
@@ -22,12 +22,12 @@ export async function* walkDirectory(
     dirPath: string,
     maxDepth = Number.MAX_SAFE_INTEGER
 ) {
-    if (maxDepth <= -1 || Math.floor(maxDepth) !== maxDepth)
+    if (maxDepth <= 0 || Math.floor(maxDepth) !== maxDepth)
         throw new Error('"maxDepth" must be positive integer');
     if (!isAbsolute(dirPath) || !existsSync(dirPath) || !lstatSync(dirPath).isDirectory())
         throw new Error('"dirPath" must be a valid absolute directory path');
 
-    const dirStack: [path: string, depth: number][] = [[dirPath, 0]];
+    const dirStack: [path: string, depth: number][] = [[dirPath, 1]];
 
     do {
         const [parentPath, depth] = dirStack.pop()!;

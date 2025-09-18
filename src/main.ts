@@ -1,10 +1,14 @@
 import "dotenv/config";
 
+import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
 import { inspect } from "node:util";
 
 import { getEnvStr } from "./common/env-utils.ts";
 import bot from "./data/Bot.ts";
 import { BotData } from "./data/BotData.ts";
+import { initializeDatabase } from "./data/database.ts";
 import { importAndAddEventListeners } from "./handlers/importers.ts";
 
 import type { IBotConfig } from "./data/BotData.ts";
@@ -25,12 +29,16 @@ async function main() {
     });
 
     // Initialize bot
+    if (!existsSync(bot.appDir))
+        await mkdir(bot.appDir);
+
     const config: IBotConfig = {
         token: getEnvStr("TOKEN") ?? getEnvStr("DISCORD_TOKEN", true),
     };
 
     await importAndAddEventListeners(bot, bot.logger);
-    const data = new BotData(config);
+    const database = await initializeDatabase(join(bot.appDir, "database.db"), bot.logger);
+    const data = new BotData(config, database);
 
     await bot.initialize(data);
 }
