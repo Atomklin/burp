@@ -1,6 +1,7 @@
 import { GuildRepo, UserRepo } from "./repos/discord-item.ts";
 
 import type { Database } from "better-sqlite3";
+import type { ColorResolvable } from "discord.js";
 
 export class BotData {
     readonly users;
@@ -17,5 +18,12 @@ export class BotData {
 }
 
 export interface IBotConfig {
+    /** Discord authorization token */
     token: string;
+    /** Default text-command prefix */
+    defaultPrefix: string;
+    /** Default locale for `i18n-js` */
+    defaultLocale: string;
+    /** Default color of a successful response embed */
+    defaultEmbedColor: ColorResolvable;
 }

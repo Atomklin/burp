@@ -1,15 +1,20 @@
 import { Client, Events, GatewayIntentBits, RESTEvents } from "discord.js";
 import assert from "node:assert";
 import { once } from "node:events";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import pino from "pino";
+
+import { I18n } from "../common/i18n.ts";
 
 import type { BaseLogger } from "pino";
 import type { BotData } from "./BotData.ts";
 
 export class Bot extends Client<true> {
     readonly logger: BaseLogger;
-    appDir: string;
+    readonly resourceDir;
+    readonly i18n;
+    appDir;
 
     #data?: BotData;
 
@@ -25,7 +30,9 @@ export class Bot extends Client<true> {
             ],
         });
 
+        this.resourceDir = join(import.meta.dirname, "../../res");
         this.appDir = join(import.meta.dirname, "../../.bot");
+
         this.logger = logger ?? pino({
             serializers: {
                 error: pino.stdSerializers.errWithCause,
@@ -50,6 +57,25 @@ export class Bot extends Client<true> {
             this.logger.error(invalidReq, "Invalid REST request"));
         this.rest.on(RESTEvents.RateLimited, (info) =>
             this.logger.error(info, "REST rate-limited"));
+
+        // I18n
+        this.i18n = new I18n({
+            getLocaleDict: (locale) => {
+                const jsonPath = join(this.resourceDir, `./locales/${locale}.json`);
+                try {
+                    const jsonData = readFileSync(jsonPath).toString("utf8");
+                    this.logger.debug('Loaded "%s" successfully', jsonPath);
+                    return JSON.parse(jsonData);
+
+                } catch (error: unknown) {
+                    if (!(error instanceof Error))
+                        throw error; // ??
+
+                    this.logger.error(error, 'Failed to load "%s"', jsonPath);
+                    return {};
+                }
+            }
+        });
     }
 
     get data() {

@@ -1,8 +1,8 @@
 import { randomInt } from "node:crypto";
 import test from "node:test";
 
-import bot from "../../Bot.ts";
 import { initializeDatabase } from "../../database.ts";
+import { getUnitTestLogger } from "../../misc.ts";
 import { GuildRepo, UserRepo } from "../discord-item.ts";
 
 import type { GuildDBO, UserDBO } from "../discord-item.ts";
@@ -14,7 +14,7 @@ for (const [Repo, repoName] of [
 {
     test(`${repoName} works`, async (ctx) => {
         // Arrange
-        const db = await initializeDatabase(":memory:", bot.logger);
+        const db = await initializeDatabase(":memory:", getUnitTestLogger());
         const repo = new Repo(db);
 
         const TestId = BigInt(Number.MAX_SAFE_INTEGER) + BigInt(randomInt(1000));

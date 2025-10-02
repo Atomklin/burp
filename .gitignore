@@ -93,3 +93,6 @@ web_modules/
 
 # Typescript build
 build/
+
+# Bot Data
+.bot/

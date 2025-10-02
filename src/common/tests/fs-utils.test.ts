@@ -6,8 +6,8 @@ import { describe, it } from "node:test";
 
 import { walkDirectory } from "../fs-utils.ts";
 
-describe('"walkDirectory()" works', () => {
-    it('should throw when "dirPath" or "maxDepth" is invalid', async (ctx) => {
+describe("`walkDirectory()` works", async () => {
+    await it('should throw when "dirPath" or "maxDepth" is invalid', async (ctx) => {
         // Arrange
         const InvalidParameters: [string, number][] = [
             ["",                         1],
@@ -23,7 +23,7 @@ describe('"walkDirectory()" works', () => {
         }
     });
 
-    it('should respect the provided "maxDepth"', async (ctx) => {
+    await it('should respect the provided "maxDepth"', async (ctx) => {
         // Arrange
         const treeDir = await createTestDir({
             File1: null,

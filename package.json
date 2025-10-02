@@ -4,8 +4,8 @@
   "main": "build/main.js",
   "scripts": {
     "start": "node .",
-    "dev": "tsc && node .",
-    "test": "tsc && node --test \"**/*.test.js\""
+    "dev": "tsc && node -r \"dotenv/config\" .",
+    "test": "tsc && node -r \"dotenv/config\" --test \"**/*.test.js\""
   },
   "type": "module",
   "packageManager": "pnpm@10.14.0",

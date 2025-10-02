@@ -1,8 +1,8 @@
 import Sqlite3 from "better-sqlite3";
 import test from "node:test";
 
-import bot from "../Bot.ts";
 import { Migrator } from "../database.ts";
+import { getUnitTestLogger } from "../misc.ts";
 
 import type { Mock, TestContext } from "node:test";
 import type { Database } from "better-sqlite3";
@@ -11,7 +11,7 @@ class TestMigrator extends Migrator {
     readonly #getExecutedMigrations;
 
     constructor(database: Database, ctx: TestContext) {
-        super(database, bot.logger);
+        super(database, getUnitTestLogger());
         this.#getExecutedMigrations = database
             .prepare<[], { name: string }>('SELECT name FROM "migrations";');
 

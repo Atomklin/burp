@@ -1,11 +1,9 @@
-import "dotenv/config";
-
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { inspect } from "node:util";
 
-import { getEnvStr } from "./common/env-utils.ts";
+import { getEnvBool, getEnvHexColor, getEnvStr } from "./common/env-utils.ts";
 import bot from "./data/Bot.ts";
 import { BotData } from "./data/BotData.ts";
 import { initializeDatabase } from "./data/database.ts";
@@ -28,12 +26,23 @@ async function main() {
         process.exit(1);
     });
 
+    // Preload locales
+    if (!existsSync(bot.resourceDir))
+        throw new Error("Failed to load resource directory");
+
+    if (!getEnvBool("LAZY_LOAD_LOCALES")) {
+        bot.i18n.getOrLoadLocaleDict("en");
+    }
+
     // Initialize bot
     if (!existsSync(bot.appDir))
         await mkdir(bot.appDir);
 
     const config: IBotConfig = {
         token: getEnvStr("TOKEN") ?? getEnvStr("DISCORD_TOKEN", true),
+        defaultPrefix: getEnvStr("DEFAULT_PREFIX", true),
+        defaultLocale: getEnvStr("DEFAULT_LOCALE") ?? "en",
+        defaultEmbedColor: getEnvHexColor("DEFAULT_EMBED_COLOR") ?? "Blurple",
     };
 
     await importAndAddEventListeners(bot, bot.logger);

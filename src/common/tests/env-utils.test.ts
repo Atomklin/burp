@@ -33,7 +33,7 @@ for (const [funcName, func, input, expected] of [
     [getEnvList.name, getEnvList, ",string", ["","string"] ],
 ] satisfies [string, (envKey: string) => unknown, string|undefined, unknown][])
 {
-    test(`when \`process.env[envKey] = ${input};\` "${funcName}(envKey)" should return ${expected}`, (ctx) => {
+    test(`when \`process.env[envKey] = ${input};\` \`${funcName}(envKey)\` should return ${expected}`, (ctx) => {
         // Arrange
         const envKey = "ENV_TEST_VAR";
         delete process.env[envKey];
@@ -57,7 +57,7 @@ for (const [funcName, func, input, expectedMsg] of [
     [getEnvHexColor.name, getEnvHexColor, "AFEBE3",    "not a valid hex color"],
 ] satisfies [string, (envKey: string, required: boolean) => unknown, string|undefined, string][])
 {
-    test(`"${funcName}(envKey, true)" should throw if \`process.env[envKey]\` is undefined / invalid`, (ctx) => {
+    test(`\`${funcName}(envKey, true)\` should throw if \`process.env[envKey]\` is undefined / invalid`, (ctx) => {
         // Arrange
         const envKey = "ENV_TEST_INVALID_VALUE";
         delete process.env[envKey];
