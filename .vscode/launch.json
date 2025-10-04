@@ -2,13 +2,13 @@
     "configurations": [
         {
             "command": "pnpm start",
-            "name": "Debug Multi-Bot",
+            "name": "Debug Bot",
             "request": "launch",
             "type": "node-terminal"
         },
         {
             "command": "pnpm test",
-            "name": "Debug Multi-Bot Test",
+            "name": "Debug Bot Test",
             "request": "launch",
             "type": "node-terminal"
         },

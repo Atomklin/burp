@@ -1,5 +1,5 @@
 {
-  "name": "multi-bot",
+  "name": "burp",
   "version": "0.0.0",
   "main": "build/main.js",
   "scripts": {
