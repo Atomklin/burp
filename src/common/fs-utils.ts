@@ -1,6 +1,6 @@
 import { existsSync, lstatSync } from "node:fs";
 import { readdir } from "node:fs/promises";
-import { isAbsolute, join } from "node:path";
+import { basename, isAbsolute, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 /**
@@ -58,7 +58,7 @@ export async function* importDirectory<T>(dirPath: string, maxDepth?: number) {
     const validFileExt = /(?<!\.test|^common)\.[tj]s$/;
 
     for await (const filePath of walkDirectory(dirPath, maxDepth)) {
-        if (!validFileExt.test(filePath))
+        if (!validFileExt.test(basename(filePath)))
             continue;
 
         const fileURL = pathToFileURL(filePath).href;

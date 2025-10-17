@@ -1,29 +1,29 @@
 import { randomInt } from "node:crypto";
 import test from "node:test";
 
-import { initializeDatabase } from "../../database.ts";
-import { getUnitTestLogger } from "../../misc.ts";
+import { getOrCreateTestDatabase } from "../../misc.ts";
 import { GuildRepo, UserRepo } from "../discord-item.ts";
 
-import type { GuildDBO, UserDBO } from "../discord-item.ts";
+import type { Database } from "better-sqlite3";
+import type { GuildDBO, IMemberConfig, UserDBO } from "../discord-item.ts";
 
-for (const [Repo, repoName] of [
-    [GuildRepo, GuildRepo.name],
-    [UserRepo,  UserRepo.name],
+for (const [repoName, newRepo] of [
+    [UserRepo.name,  (db: Database) => new UserRepo(db)],
+    [GuildRepo.name, (db: Database) => new GuildRepo(db, { embedColor: "Random", locale: "en" })],
 ] as const)
 {
-    test(`${repoName} works`, async (ctx) => {
+    test(`\`${repoName}\` works`, async (ctx) => {
         // Arrange
-        const db = await initializeDatabase(":memory:", getUnitTestLogger());
-        const repo = new Repo(db);
+        const db = await getOrCreateTestDatabase();
+        const repo = newRepo(db);
 
         const TestId = BigInt(Number.MAX_SAFE_INTEGER) + BigInt(randomInt(1000));
         const TestItem: GuildDBO | UserDBO = {
             id: TestId.toString(),
             name: "Test Item",
             config: {
-                "Config1": "value",
-                "Config 2": 1234
+                "locale": "value",
+                "embedColor": 1234
             },
             createdAt: new Date(),
             updatedAt: undefined,
@@ -49,7 +49,7 @@ for (const [Repo, repoName] of [
 
         // Act #4: Update the created item
         TestItem.name = "TestItem 2";
-        TestItem.config = { "Config 2": "value" };
+        TestItem.config = { "embedColor": "Blurple" };
         result = repo.createOrUpdate(TestItem);
         // Assert #4
         expectValidItem(result);
@@ -61,8 +61,6 @@ for (const [Repo, repoName] of [
         repo.deleteById(TestItem.id);
         // Assert #5
         ctx.assert.equal(repo.getById(TestId), undefined);
-
-        db.close();
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         function expectValidItem(item: any) {
@@ -76,3 +74,55 @@ for (const [Repo, repoName] of [
         }
     });
 }
+
+test("`GuildRepo.getMemberConfig()` works", async (ctx) => {
+    // Arrange
+    const db = await getOrCreateTestDatabase();
+    const DefaultConfig: IMemberConfig = {
+        embedColor: "Random",
+        locale: "en"
+    };
+    const TestUser: UserDBO = {
+        id: "12345",
+        name: "Test User with Config",
+        createdAt: new Date(),
+        config: {
+            embedColor: "Aqua"
+        }
+    };
+    const TestGuild: GuildDBO = {
+        id: "54321",
+        name: "Test Guild with Config",
+        createdAt: new Date(),
+        config: {
+            locale: "de"
+        }
+    };
+
+    const userRepo = new UserRepo(db);
+    const guildRepo = new GuildRepo(db, DefaultConfig);
+
+    // Act #1 User and guild doesn't exist, fallback to default
+    let results = guildRepo.getMemberConfig(TestUser.id, TestGuild.id);
+    // Assert #1
+    ctx.assert.deepEqual(results, DefaultConfig);
+
+    // Act #2 Only `TestUser` exists
+    userRepo.createOrUpdate(TestUser);
+    results = guildRepo.getMemberConfig(TestUser.id, TestGuild.id);
+    // Assert #2
+    ctx.assert.deepEqual(results, { ...DefaultConfig, ...TestUser.config });
+
+    // Act #3 Only `TestGuild` exists
+    userRepo.deleteById(TestUser.id);
+    guildRepo.createOrUpdate(TestGuild);
+    results = guildRepo.getMemberConfig(TestUser.id, TestGuild.id);
+    // Assert #3
+    ctx.assert.deepEqual(results, { ...DefaultConfig, ...TestGuild.config });
+
+    // Act #4 When both exists
+    userRepo.createOrUpdate(TestUser);
+    results = guildRepo.getMemberConfig(TestUser.id, TestGuild.id);
+    // Assert #4
+    ctx.assert.deepEqual(results, { ...TestGuild.config, ...TestUser.config });
+});

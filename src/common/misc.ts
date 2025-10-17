@@ -1,3 +1,5 @@
+import assert from "node:assert";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Obj = any; // type alias to avoid spamming `eslint-disable-next-line`
 
@@ -24,4 +26,16 @@ export function getPropValue<T>(object: Obj, prop: string|string[], defaultValue
 
 export function withSuffix(input: string, suffix: string) {
     return input.endsWith(suffix) ? input : input.concat(suffix);
+}
+
+/** Escapes any characters that have special meanings in regular expressions.
+ * For example: `.*` (matches anything) => `\\.\\*` (matches the character
+ * '.' and '*' in this exact order) */
+export function sanitizeForRegExp(input: string) {
+    return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function assertNotNull<T>(value: T|null|undefined) {
+    assert(value != null);
+    return value;
 }

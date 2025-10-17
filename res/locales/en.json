@@ -1,1 +1,18 @@
-{}
+{
+    "error": {
+        "command": {
+            "missing": "I'm sorry, that command \"{{cmdName}}\" is not recognized. Please check the command list or try a different command.",
+            "failed": "I encountered an error while processing that command. Please try again later. "
+        },
+        "bot": {
+            "permission": {
+                "missing": "You do not have the required permissions to use this command. You are missing: {{list}}"
+            }
+        },
+        "user": {
+            "permission": {
+                "missing": "I am missing the following permissions and cannot fulfill this command: {{list}}. Please contact the server administrator."
+            }
+        }
+    }
+}

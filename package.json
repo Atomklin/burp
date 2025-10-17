@@ -4,7 +4,7 @@
   "main": "build/main.js",
   "scripts": {
     "start": "node .",
-    "dev": "tsc && node -r \"dotenv/config\" .",
+    "dev": "tsc && node -r \"dotenv/config\" . | pino-pretty -i \"hostname,pid\"",
     "test": "tsc && node -r \"dotenv/config\" --test \"**/*.test.js\""
   },
   "type": "module",
@@ -15,6 +15,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.3.0",
     "eslint": "^9.34.0",
+    "pino-pretty": "^13.1.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
   },

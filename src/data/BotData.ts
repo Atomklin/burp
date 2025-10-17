@@ -1,7 +1,7 @@
 import { GuildRepo, UserRepo } from "./repos/discord-item.ts";
 
 import type { Database } from "better-sqlite3";
-import type { ColorResolvable } from "discord.js";
+import type { HexColorString } from "discord.js";
 
 export class BotData {
     readonly users;
@@ -13,7 +13,10 @@ export class BotData {
     ) {
         this.config = Object.freeze(this.config);
         this.users = new UserRepo(database);
-        this.guilds = new GuildRepo(database);
+        this.guilds = new GuildRepo(database, {
+            embedColor: config.defaultEmbedColor,
+            locale: config.defaultLocale,
+        });
     }
 }
 
@@ -25,5 +28,5 @@ export interface IBotConfig {
     /** Default locale for `i18n-js` */
     defaultLocale: string;
     /** Default color of a successful response embed */
-    defaultEmbedColor: ColorResolvable;
+    defaultEmbedColor: HexColorString;
 }

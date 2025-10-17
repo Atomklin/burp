@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import test, { describe } from "node:test";
 
-import { getPropValue, withSuffix } from "../misc.ts";
+import { getPropValue, sanitizeForRegExp, withSuffix } from "../misc.ts";
 
 describe("`getPropValue()` works", () => {
     // Arrange
@@ -53,3 +53,21 @@ test("`withSuffix()` works", (ctx) => {
     // Act & Assert #2
     ctx.assert.equal(withSuffix("withsuffix", "suffix"), "withsuffix");
 });
+
+// Arrange
+for (const [input, expected] of [
+    ["",   ""],     ["abcdef01234", "abcdef01234" ],
+    [".",  "\\." ], ["*",  "\\*" ],
+    ["+",  "\\+" ], ["?",  "\\?" ],
+    ["^",  "\\^" ], ["$",  "\\$" ],
+    ["{",  "\\{" ], ["}",  "\\}" ],
+    ["(",  "\\(" ], [")",  "\\)" ],
+    ["[",  "\\[" ], ["]",  "\\]" ],
+    ["|",  "\\|" ], ["\\", "\\\\" ],
+    [".*", "\\.\\*" ],
+] as [string, string][]) {
+    test(`\`sanitizeForRegExp("${input}")\` should return "${expected}"`, (ctx) => {
+        // Act & Assert
+        ctx.assert.deepEqual(sanitizeForRegExp(input), expected);
+    });
+}

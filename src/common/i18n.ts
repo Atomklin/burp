@@ -17,13 +17,14 @@ interface I18nConfig {
     getLocaleDict: (locale: Locale) => LocaleDict;
 }
 
-// to be expanded
-export type Locale = "en";
+export type Locale = (typeof SupportedLocales)[number];
 export interface TranslateOptions {
     count?: number;
     [option: string]: string | number | undefined;
 }
 
+// to be expanded
+const SupportedLocales = ["en"] as const;
 const SpecialCountSuffix = [".zero", ".one", ".other"];
 
 /** Simple translation module with lazyloading capabilities */
@@ -65,7 +66,10 @@ export class I18n {
      * @param scope The dot-separated path identifying the message in the locale dictionary.
      * @param options Optional values for pluralization (`count`) and interpolation keys.
      */
-    translate(locale: Locale, scope: string, options?: TranslateOptions) {
+    translate(locale: Locale | string, scope: string, options?: TranslateOptions) {
+        if (!isSupportedLocale(locale))
+            throw new Error(`"${locale}" is not a supported locale`);
+
         const count = options?.count ?? -1;
         if (count >= 0 && Math.floor(count) === count)
             scope = withSuffix(scope, SpecialCountSuffix[count] ?? ".other");
@@ -111,4 +115,11 @@ export class I18n {
     }
 }
 
+export function isSupportedLocale(locale: string): locale is Locale {
+    return (SupportedLocales as unknown as string[]).includes(locale);
+}
 
+export function joinArray(array: string[], locale: string, type: Intl.ListFormatType) {
+    const formatter = new Intl.ListFormat(locale, { type });
+    return formatter.format(array);
+}

@@ -9,8 +9,11 @@ import { I18n } from "../common/i18n.ts";
 
 import type { BaseLogger } from "pino";
 import type { BotData } from "./BotData.ts";
+import type { ITextCommand } from "./types.ts";
 
 export class Bot extends Client<true> {
+    readonly textCommands;
+
     readonly logger: BaseLogger;
     readonly resourceDir;
     readonly i18n;
@@ -29,6 +32,8 @@ export class Bot extends Client<true> {
                 GatewayIntentBits.GuildVoiceStates
             ],
         });
+
+        this.textCommands = new Map<string, ITextCommand>();
 
         this.resourceDir = join(import.meta.dirname, "../../res");
         this.appDir = join(import.meta.dirname, "../../.bot");
@@ -91,6 +96,8 @@ export class Bot extends Client<true> {
             once(this, Events.ClientReady),
             this.login(data.config.token)
         ]);
+
+        this.logger.info('"Bot" initialized');
     }
 }
 

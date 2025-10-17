@@ -7,7 +7,7 @@ import { getEnvBool, getEnvHexColor, getEnvStr } from "./common/env-utils.ts";
 import bot from "./data/Bot.ts";
 import { BotData } from "./data/BotData.ts";
 import { initializeDatabase } from "./data/database.ts";
-import { importAndAddEventListeners } from "./handlers/importers.ts";
+import { importAndAddEventListeners, importAndAddTextCommands } from "./handlers/importers.ts";
 
 import type { IBotConfig } from "./data/BotData.ts";
 
@@ -20,7 +20,7 @@ async function main() {
     process.on("warning", (warning) =>
         logger.warn(warning, "Process Wraning"));
     process.on("unhandledRejection", (reason, promise) =>
-        logger.error({ reason, promise: inspect(promise) }, "Unhandled Rejection"));
+        logger.error("Unhandled Rejection: %s", inspect(promise)));
     process.setUncaughtExceptionCaptureCallback((error) => {
         logger.fatal(error, "Uncaught Exception, exiting application");
         process.exit(1);
@@ -42,10 +42,11 @@ async function main() {
         token: getEnvStr("TOKEN") ?? getEnvStr("DISCORD_TOKEN", true),
         defaultPrefix: getEnvStr("DEFAULT_PREFIX", true),
         defaultLocale: getEnvStr("DEFAULT_LOCALE") ?? "en",
-        defaultEmbedColor: getEnvHexColor("DEFAULT_EMBED_COLOR") ?? "Blurple",
+        defaultEmbedColor: getEnvHexColor("DEFAULT_EMBED_COLOR") ?? "#5865F2",
     };
 
     await importAndAddEventListeners(bot, bot.logger);
+    await importAndAddTextCommands(bot.textCommands, bot.logger);
     const database = await initializeDatabase(join(bot.appDir, "database.db"), bot.logger);
     const data = new BotData(config, database);
 

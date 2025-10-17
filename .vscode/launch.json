@@ -1,16 +1,35 @@
 {
     "configurations": [
         {
-            "command": "pnpm start",
             "name": "Debug Bot",
+            "console": "integratedTerminal",
+            "program": "${workspaceFolder}/build/main.js",
             "request": "launch",
-            "type": "node-terminal"
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "preLaunchTask": "${defaultBuildTask}",
+            "runtimeArgs": [
+                "-r",
+                "dotenv/config"
+            ]
         },
         {
-            "command": "pnpm test",
             "name": "Debug Bot Test",
+            "console": "integratedTerminal",
+            "preLaunchTask": "${defaultBuildTask}",
             "request": "launch",
-            "type": "node-terminal"
+            "runtimeArgs": [
+                "-r",
+                "dotenv/config",
+                "--test",
+                "**/*.test.js"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
         },
     ]
 }
