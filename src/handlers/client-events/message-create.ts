@@ -1,6 +1,6 @@
 import { Events, inlineCode, PermissionFlagsBits } from "discord.js";
 
-import { joinArray } from "../../common/i18n.ts";
+import { formatList } from "../../common/i18n.ts";
 import { sanitizeForRegExp } from "../../common/misc.ts";
 import bot from "../../data/Bot.ts";
 import { TextCommandContext } from "../text-commands/common.ts";
@@ -34,24 +34,27 @@ export default {
             // First capture group = prefix used to invoke the command (i.e @bot / `defaultPrefix`)
             // Second capture group = the name of the command
             // Third capture group = the possible arguments to the command
-            parser = new RegExp(`^(<@!?${bot.user.id}>|${prefix})\\s*([a-zA-Z0-9]+)\\s*(.*)$`);
+            parser = new RegExp(`^(<@!?${bot.user.id}>|${prefix})\\s*([a-zA-Z0-9]+)`);
         }
 
-        const [, cmdPrefix, cmdName, cmdArgs] = parser.exec(message.content) ?? [];
-        if (cmdPrefix == null || cmdName == null)
+        const [match, cmdPrefix, cmdName] = parser.exec(message.content) ?? [];
+        if (match == null || cmdPrefix == null || cmdName == null)
             return;
 
         const command = bot.textCommands.get(cmdName);
         const context = new TextCommandContext(
             bot.data.guilds.getMemberConfig(message.author.id, message.guildId),
-            cmdPrefix, cmdName, cmdArgs, message
+            cmdPrefix, cmdName, match.length, message
         );
 
         try {
             await message.channel.sendTyping();
 
-            if (command == null)
-                return context.sendI18nError("error.command.missing", { cmdName });
+            // Check if a non-dev is trying to run a "dev" command, return a
+            // "command is missing" for security.
+            const adminIds = bot.data.config.adminIds;
+            if (command == null || (command.category === "dev" && !adminIds.has(message.author.id)))
+                return context.sendI18nError("client-event.command-missing", { cmdName });
 
             // Check if the user has all the required permissions, then also for the bot
             const userPermissions = message.channel.permissionsFor(context.user);
@@ -66,7 +69,8 @@ export default {
                 throw error; // ??
 
             bot.logger.error(error, 'Failed to run text-command: "%s"', cmdName);
-            return context.sendI18nError("error.command.failed");
+            if (!context.handled)
+                return context.sendI18nError("client-event.command-failed");
         }
 
         async function maybeSendMissingPermsError(
@@ -82,8 +86,8 @@ export default {
 
             if (missingAny) {
                 const locale = context.config.locale;
-                const list = joinArray(missing.map(e => inlineCode(e)), locale, "conjunction");
-                await context.sendI18nError(`error.${target}.permission.missing`, { list });
+                const list = formatList(missing.map(e => inlineCode(e)), locale, "conjunction");
+                await context.sendI18nError(`client-event.${target}-permissions-missing`, { list });
             }
 
             return missingAny;

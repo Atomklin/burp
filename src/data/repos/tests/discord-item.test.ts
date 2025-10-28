@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import test from "node:test";
 
-import { getOrCreateTestDatabase } from "../../misc.ts";
+import { getOrCreateTestDatabase } from "../../tests/db-test-helpers.ts";
 import { GuildRepo, UserRepo } from "../discord-item.ts";
 
 import type { Database } from "better-sqlite3";

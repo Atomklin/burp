@@ -1,18 +1,21 @@
 {
-    "error": {
-        "command": {
-            "missing": "I'm sorry, that command \"{{cmdName}}\" is not recognized. Please check the command list or try a different command.",
-            "failed": "I encountered an error while processing that command. Please try again later. "
+    "client-event": {
+        "command-failed": "> I encountered an error while processing that command. Please try again later.",
+        "command-missing": "> I'm sorry, \"{{cmdName}}\" is not recognized as a valid command. Please check the command list or try a different command.",
+        "bot-permissions-missing": "> I am missing the following permissions and cannot fulfill this command: {{list}}. Please contact the server administrator.",
+        "user-permissions-missing": "> You do not have the required permissions to use this command. You are missing: {{list}}"
+    },
+    "text-command": {
+        "stats": {
+            "pong": "**🏓 Pong** ⦁ {{latency}} ms",
+            "description": "Shows various bot-related stats."
         },
-        "bot": {
-            "permission": {
-                "missing": "You do not have the required permissions to use this command. You are missing: {{list}}"
-            }
-        },
-        "user": {
-            "permission": {
-                "missing": "I am missing the following permissions and cannot fulfill this command: {{list}}. Please contact the server administrator."
-            }
+        "eval": {
+            "description": "Evaluate Javascript within the bot's runtime.",
+            "argument-missing": "Please provide something to evaluate.",
+            "eval-max-characters": "… exceeds 4096 characters",
+            "eval-successful": "JS Execution Successful",
+            "eval-failed": "JS Execution Failed"
         }
     }
 }

@@ -3,7 +3,9 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { inspect } from "node:util";
 
-import { getEnvBool, getEnvHexColor, getEnvStr } from "./common/env-utils.ts";
+import {
+    getEnvBool, getEnvHexColor, getEnvList, getEnvNum, getEnvStr
+} from "./common/env-utils.ts";
 import bot from "./data/Bot.ts";
 import { BotData } from "./data/BotData.ts";
 import { initializeDatabase } from "./data/database.ts";
@@ -40,9 +42,11 @@ async function main() {
 
     const config: IBotConfig = {
         token: getEnvStr("TOKEN") ?? getEnvStr("DISCORD_TOKEN", true),
+        adminIds: new Set(getEnvList("ADMIN_IDS")),
         defaultPrefix: getEnvStr("DEFAULT_PREFIX", true),
         defaultLocale: getEnvStr("DEFAULT_LOCALE") ?? "en",
         defaultEmbedColor: getEnvHexColor("DEFAULT_EMBED_COLOR") ?? "#5865F2",
+        embedCodeBlockWidth: getEnvNum("EMBED_CODE_BLOCK_WIDTH") ?? 56,
     };
 
     await importAndAddEventListeners(bot, bot.logger);

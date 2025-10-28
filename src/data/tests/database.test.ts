@@ -2,7 +2,7 @@ import Sqlite3 from "better-sqlite3";
 import test from "node:test";
 
 import { Migrator } from "../database.ts";
-import { getUnitTestLogger } from "../misc.ts";
+import { getUnitTestLogger } from "./db-test-helpers.ts";
 
 import type { Mock, TestContext } from "node:test";
 import type { Database } from "better-sqlite3";

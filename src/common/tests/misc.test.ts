@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import test, { describe } from "node:test";
 
-import { getPropValue, sanitizeForRegExp, withSuffix } from "../misc.ts";
+import {
+    formatElapsedTime, getPropValue, safeEval, sanitizeForRegExp, withSuffix
+} from "../misc.ts";
 
 describe("`getPropValue()` works", () => {
     // Arrange
@@ -54,20 +56,64 @@ test("`withSuffix()` works", (ctx) => {
     ctx.assert.equal(withSuffix("withsuffix", "suffix"), "withsuffix");
 });
 
-// Arrange
-for (const [input, expected] of [
-    ["",   ""],     ["abcdef01234", "abcdef01234" ],
-    [".",  "\\." ], ["*",  "\\*" ],
-    ["+",  "\\+" ], ["?",  "\\?" ],
-    ["^",  "\\^" ], ["$",  "\\$" ],
-    ["{",  "\\{" ], ["}",  "\\}" ],
-    ["(",  "\\(" ], [")",  "\\)" ],
-    ["[",  "\\[" ], ["]",  "\\]" ],
-    ["|",  "\\|" ], ["\\", "\\\\" ],
-    [".*", "\\.\\*" ],
-] as [string, string][]) {
-    test(`\`sanitizeForRegExp("${input}")\` should return "${expected}"`, (ctx) => {
-        // Act & Assert
-        ctx.assert.deepEqual(sanitizeForRegExp(input), expected);
+describe("`sanitizeForRegExp()` works", () => {
+    // Arrange
+    for (const [input, expected] of [
+        ["",   ""],     ["abcdef01234", "abcdef01234" ],
+        [".",  "\\." ], ["*",  "\\*" ],
+        ["+",  "\\+" ], ["?",  "\\?" ],
+        ["^",  "\\^" ], ["$",  "\\$" ],
+        ["{",  "\\{" ], ["}",  "\\}" ],
+        ["(",  "\\(" ], [")",  "\\)" ],
+        ["[",  "\\[" ], ["]",  "\\]" ],
+        ["|",  "\\|" ], ["\\", "\\\\" ],
+        [".*", "\\.\\*" ],
+    ] satisfies [string, string][]) {
+        test(`\`sanitizeForRegExp("${input}")\` should return "${expected}"`, (ctx) => {
+            // Act & Assert
+            ctx.assert.deepEqual(sanitizeForRegExp(input), expected);
+        });
+    }
+});
+
+describe("`formatElapsedTime()` works", () => {
+    // Arrange
+    for (const [input, expected] of [
+        [0,                       "00:00:00"],
+        [1e3,                     "00:00:01"],
+        [60 * 1e3,                "00:01:00"],
+        [60 * 60 * 1e3,           "01:00:00"],
+        [24 * 60 * 60 * 1e3,      "001:00:00:00"],
+        [3.1535999e+10,           "364:23:59:59"],
+        [-3.1535999e+10,          "-364:23:59:59"],
+        [Number.MAX_SAFE_INTEGER, "104249991:08:59:00"],
+        [Number.MIN_SAFE_INTEGER, "-104249991:08:59:00"],
+    ] satisfies [number, string][]
+    ) {
+        test(`\`formatElapsedTime(${input})\` should return ${expected}`, (ctx) => {
+            // Act & Assert
+            ctx.assert.deepEqual(formatElapsedTime(input), expected);
+        });
+    }
+
+    // Arrange
+    test("`formatElapsedTime(input)` should throw, when `input` is a non-finite number", (ctx) => {
+        for (const input of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+            // Act & Assert
+            ctx.assert.throws(() => formatElapsedTime(input), /not a finite value/);
+        }
     });
-}
+});
+
+// From : https://github.com/hacksparrow/safe-eval/blob/master/test/test.js
+describe("`safeEval()` works", () => {
+    test("should not have access to Node.js objects", (ctx) => {
+        const code = "process";
+        ctx.assert.throws(() => safeEval(code));
+    });
+
+    test("should not have access to Node.js objects (CWE-265)", (ctx) => {
+        const code = "this.constructor.constructor('return process')()";
+        ctx.assert.throws(() => safeEval(code));
+    });
+});

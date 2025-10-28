@@ -1,6 +1,7 @@
 import type { Database } from "better-sqlite3";
 import type {
-    GuildMember, GuildTextBasedChannel, PartialGroupDMChannel, PermissionsBitField
+    APIEmbed,
+    GuildMember, GuildTextBasedChannel, JSONEncodable, PartialGroupDMChannel, PermissionsBitField
 } from "discord.js";
 import type { TranslateOptions } from "../common/i18n.ts";
 import type { IMemberConfig } from "./repos/discord-item.ts";
@@ -28,24 +29,23 @@ export interface ITextCommandContext {
     /** Preferred config of the {@link user}. */
     config: IMemberConfig;
 
-    /** The array containing the arguments of the invoked command. */
-    argv: string[];
-    /** Prefix used for the command. Also known as `argv[0]`. */
+    /** Prefix used for the command. */
     prefix: string;
-    /** Keyword used to invoke command. Also known as `argv[1]`. */
+    /** Keyword used to invoke command. */
     commandName: string;
-    /** A copy of the `argv` array that excludes {@link prefix} and {@link commandName}  */
+    /** The array containing the arguments of the invoked command. */
     args?: string[];
 
-    /** Send a `I18n` translated message using the preferred {@link locale}. */
-    sendI18nMessage(scope: string, options: TranslateOptions): Promise<void>;
-    /** Send a `I18n` translated error message using the preferred {@link locale}. */
-    sendI18nError(scope: string, options: TranslateOptions): Promise<void>;
-    /** Send a normal text message. If `content` is an array, it is sent as a
-     * paginated embed, where each page corresponds to an element in the array. */
-    sendMessage(content: string | string[]): Promise<void>;
-}
+    /** Returns the `I18n` translated scope using the preferred {@link locale} */
+    translate(scope: string, options?: TranslateOptions): string;
 
+    /** Send a `I18n` translated message using the preferred {@link locale}. */
+    sendI18nMessage(scope: string, options?: TranslateOptions): Promise<void>;
+    /** Send a `I18n` translated error message using the preferred {@link locale}. */
+    sendI18nError(scope: string, options?: TranslateOptions): Promise<void>;
+    /** Send a normal text message or custom embed. */
+    sendMessage(content: string | JSONEncodable<APIEmbed> | APIEmbed): Promise<void>;
+}
 
 export interface IMigrationModule {
     up(database: Database): void;

@@ -1,6 +1,6 @@
 import test, { describe } from "node:test";
 
-import { I18n } from "../i18n.ts";
+import { formatList, I18n } from "../i18n.ts";
 
 import type { TranslateOptions } from "../i18n.ts";
 
@@ -90,4 +90,19 @@ describe("`I18n` works", () => {
         const expected = "abcdefghigklmnopqrstuvwxyz 0123456789 1000.1 word\n\nword\n\n. (FALLBACK)";
         ctx.assert.deepEqual(result, expected);
     });
+});
+
+test("`formatList()` works", (ctx) => {
+    // Arrange
+    for (const [input, listType, expected] of [
+        [["A"], "conjunction", "A"],
+        [[],    "conjunction", ""],
+        [["B"], "disjunction", "B"],
+        [["A", "B", "C"], "conjunction", "A, B, and C"],
+        [["D", "E", "F"], "disjunction", "D, E, or F"],
+    ] as [string[], Intl.ListFormatType, string][]
+    ) {
+        // Act & Assert
+        ctx.assert.deepEqual(formatList(input, "en", listType), expected);
+    }
 });

@@ -119,7 +119,13 @@ export function isSupportedLocale(locale: string): locale is Locale {
     return (SupportedLocales as unknown as string[]).includes(locale);
 }
 
-export function joinArray(array: string[], locale: string, type: Intl.ListFormatType) {
+/** Format an array of strings into a locale-aware human-readable list (e.g. “A, B, and C”)
+ * using the `Intl.ListFormat` API, falling back to a single element if the array has
+ * `length <= 1`. */
+export function formatList(array: string[], locale: string, type: Intl.ListFormatType) {
+    if (array.length <= 1)
+        return array[0] ?? "";
+
     const formatter = new Intl.ListFormat(locale, { type });
     return formatter.format(array);
 }
